@@ -20,7 +20,7 @@ give user ownership to shared path
 """
 
 def addUser():
-    global username
+    global user
     global paths
 
     username = input("enter username to add =:")
@@ -38,8 +38,8 @@ def addUser():
 def editConf():
     content = [
         "[SharedFolder]",
-        "\tpath = paths",
-        "\tforce users = user",
+        "\tpath = " f"{paths}",
+        "\tforce users = " f"{user}",
         "\tread only = yes" , 
         "\tbrowseable = yes"
     ]

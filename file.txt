@@ -1,0 +1,21 @@
+;shared folder starts here
+[SharedFolder]
+	path = paths
+	force users = user
+	read only = yes
+	browseable = yes
+[SharedFolder]
+	path = paths
+	force users = user
+	read only = yes
+	browseable = yes
+[SharedFolder]
+	path =Downloads
+	force users = user
+	read only = yes
+	browseable = yes
+[SharedFolder]
+	path = fff
+	force users = user
+	read only = yes
+	browseable = yes
