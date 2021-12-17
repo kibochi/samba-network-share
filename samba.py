@@ -1,67 +1,111 @@
-
+from colorama import Fore
+import colorama
+import pyfiglet
 import os
 
 
+colorama.init()
+print( Fore.RED + pyfiglet.figlet_format( "let's Samba", font = "bulbhead" ))
 
+
+ 
 def checkRoot():
     user = os.getenv("SUDO_USER")
     if user is None:
-        print("Damn!!!.Youre Not Root")
+        print(Fore.RED + "Damn!!!.Youre Not Root")
       
     else:
-       addUser()
+     username()
 
 
-""" 
-add user to  system
-add user to smb with a password
-give user ownership to shared path
 
-"""
+def username():
+    global username
+    username = input(Fore.GREEN + "enter username to add =:")
+    print(Fore.WHITE + f"********checking if {username} is available********")
+    checkUsers()
+    
+   
 
-def addUser():
-    global user
+
+def newUser():
+    os.system(f"sudo useradd {username}")
+    print("[x]done")
+    smb()
+
+
+
+def smb():
+    
+    try:
+        os.system(Fore.GREEN + f"sudo smbpasswd -a {username}")
+        
+      
+        print(Fore.GREEN + "[x]***** Done *****")
+        path()
+        
+    except:
+        print(Fore.RED+ "[x] an error occured")
+  
+    
+
+
+def checkIsDir():
+    if  not os.path.isdir(paths):
+        print(Fore.RED + "[-] Error!!!!! place the  correct path")
+        path()
+    else:
+        os.system(f"sudo chown {username} {paths}")
+        editConf()
+        
+
+def checkUsers():
+   users = os.popen("awk -F':' '{print $1}' /etc/passwd ").read()
+   if(username in users):
+       print(Fore.RED + "[-]username already exists adding it to smb")
+       smb()
+   else:
+       print(Fore.GREEN + f"[x]Adding {username} to system")
+       newUser()
+      
+
+def path():
     global paths
+    paths = input(Fore.GREEN + "enter volume/folder path to be shared =:") 
+    checkIsDir()
+      
 
-    username = input("enter username to add =:")
-    paths = input("enter volume/folder path to be shared =:")
-    print(f'''[x]*****Adding {username} to system without shell\n 
-            adding the user to smb \n 
-            changing folder/volume ownership*****''')
-    user = os.system(f"useradd {username} --shell /bin/false")
-    os.system(f"smbpasswd -a {user}")
-    os.system(f"chown {user} {paths}")
-    print("[x]***** Done *****")
-    editConf()
 
 
 def editConf():
+    global sharename
+    sharename = input(Fore.GREEN + "enter share name =:")
     content = [
-        "[SharedFolder]",
+        f"[{sharename}]",
         "\tpath = " f"{paths}",
-        "\tforce users = " f"{user}",
         "\tread only = yes" , 
         "\tbrowseable = yes"
     ]
 
     backup()
     
-    with open("file.txt","r+") as f:
+    with open("/etc/samba/smb.conf","r+") as f:
         eof = f.read()
         if eof == "":
             f.writelines(";shared folder starts here" '\n')   
         for x in content:
             f.writelines(x+ '\n')
-
+    restart()
 
 
 
 def backup():
-    os.system("cp /etc/samba.conf /etc/samba.bak")
+    os.system("cp /etc/samba/smb.conf /etc/samba/smb.bak")
 
 
 def restart():
     os.system("service smbd restart")
+    print(Fore.GREEN + "Done...Enjoy")
 
 if __name__ == "__main__":
     checkRoot()
